@@ -5,5 +5,4 @@ app = FastAPI()
 
 @app.get("/")
 def saudacao():
-    return {"mensagem": "API do SMJuris no AR",
-            "versao": "0.1.0"}
+    return {"mensagem": "API do SMJuris no ar", "versao": "0.1.0"}
