@@ -58,3 +58,25 @@ def cadastrar_processo(processo: Processo):
             raise HTTPException(status_code=409, detail="Processo já cadastrado.")
     processos.append(processo.model_dump())
     return processo
+
+
+@app.put("/processos/{numero_cnj}")
+def atualizar_processo(numero_cnj: str, processo: Processo):
+    if numero_cnj != processo.numero_cnj:
+        raise HTTPException(
+            status_code=400, detail="Não é permitido alterar o número CNJ do processo."
+        )
+    for indice, cadastro in enumerate(processos):
+        if numero_cnj == cadastro["numero_cnj"]:
+            processos[indice] = processo.model_dump()
+            return processos[indice]
+    raise HTTPException(status_code=404, detail="Processo não encontrado.")
+
+
+@app.delete("/processos/{numero_cnj}", status_code=204)
+def deletar_processo(numero_cnj: str):
+    for indice, processo in enumerate(processos):
+        if processo["numero_cnj"] == numero_cnj:
+            del processos[indice]
+            return
+    raise HTTPException(status_code=404, detail="Processo não encontrado.")
