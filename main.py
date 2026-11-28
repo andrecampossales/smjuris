@@ -33,6 +33,13 @@ processos = [
 ]
 
 
+def buscar_indice(numero_cnj: str) -> int | None:
+    for indice, processo in enumerate(processos):
+        if numero_cnj == processo["numero_cnj"]:
+            return indice
+    return None
+
+
 @app.get("/")
 def saudar():
     return {"mensagem": "API do SMJuris no ar", "versao": "0.1.0"}
@@ -45,17 +52,18 @@ def listar_processos():
 
 @app.get("/processos/{numero_cnj}")
 def consultar_processo(numero_cnj: str):
-    for processo in processos:
-        if numero_cnj == processo["numero_cnj"]:
-            return processo
-    raise HTTPException(status_code=404, detail="Processo não encontrado.")
+    indice = buscar_indice(numero_cnj)
+
+    if indice is None:
+        raise HTTPException(status_code=404, detail="Processo não encontrado.")
+    return processos[indice]
 
 
 @app.post("/processos", status_code=201)
 def cadastrar_processo(processo: Processo):
-    for cadastrado in processos:
-        if processo.numero_cnj == cadastrado["numero_cnj"]:
-            raise HTTPException(status_code=409, detail="Processo já cadastrado.")
+    indice = buscar_indice(processo.numero_cnj)
+    if indice is not None:
+        raise HTTPException(status_code=409, detail="Processo já cadastrado.")
     processos.append(processo.model_dump())
     return processo
 
@@ -66,17 +74,16 @@ def atualizar_processo(numero_cnj: str, processo: Processo):
         raise HTTPException(
             status_code=400, detail="Não é permitido alterar o número CNJ do processo."
         )
-    for indice, cadastro in enumerate(processos):
-        if numero_cnj == cadastro["numero_cnj"]:
-            processos[indice] = processo.model_dump()
-            return processos[indice]
-    raise HTTPException(status_code=404, detail="Processo não encontrado.")
+    indice = buscar_indice(numero_cnj)
+    if indice is None:
+        raise HTTPException(status_code=404, detail="Processo não encontrado.")
+    processos[indice] = processo.model_dump()
+    return processos[indice]
 
 
 @app.delete("/processos/{numero_cnj}", status_code=204)
 def deletar_processo(numero_cnj: str):
-    for indice, processo in enumerate(processos):
-        if processo["numero_cnj"] == numero_cnj:
-            del processos[indice]
-            return
-    raise HTTPException(status_code=404, detail="Processo não encontrado.")
+    indice = buscar_indice(numero_cnj)
+    if indice is None:
+        raise HTTPException(status_code=404, detail="Processo não encontrado.")
+    del processos[indice]
