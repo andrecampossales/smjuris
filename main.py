@@ -1,14 +1,30 @@
+from enum import StrEnum
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 app = FastAPI()
 
 
+class StatusProcesso(StrEnum):
+    EM_ANDAMENTO = "EM_ANDAMENTO"
+    ARQUIVADO = "ARQUIVADO"
+    SUSPENSO = "SUSPENSO"
+    EXTINTO = "EXTINTO"
+
+
+class PoloProcessual(StrEnum):
+    ATIVO = "ATIVO"
+    PASSIVO = "PASSIVO"
+    TERCEIRO = "TERCEIRO"
+
+
 class Processo(BaseModel):
     numero_cnj: str
     vara: str
-    status: str
+    status: StatusProcesso
     valor_da_causa: str
+    escritorio_defende: PoloProcessual
 
 
 processos = [
@@ -17,18 +33,28 @@ processos = [
         "vara": "10ª Cível",
         "status": "ARQUIVADO",
         "valor_da_causa": "10000.00",
+        "escritorio_defende": "ATIVO",
     },
     {
         "numero_cnj": "0000002-93.2025.8.26.0001",
         "vara": "10ª Cível",
         "status": "SUSPENSO",
         "valor_da_causa": "50000.00",
+        "escritorio_defende": "ATIVO",
     },
     {
         "numero_cnj": "0000003-78.2025.8.26.0001",
         "vara": "10ª Cível",
         "status": "EM_ANDAMENTO",
         "valor_da_causa": "100000.00",
+        "escritorio_defende": "ATIVO",
+    },
+    {
+        "numero_cnj": "0000004-63.2025.8.26.0001",
+        "vara": "27ª Cível",
+        "status": "SUSPENSO",
+        "valor_da_causa": "10000.00",
+        "escritorio_defende": "PASSIVO",
     },
 ]
 
